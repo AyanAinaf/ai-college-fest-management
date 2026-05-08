@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FestFlow Ultimate Final</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg:#080c18;
+--surface:rgba(15,23,42,.82);
+--cyan:#06b6d4;
+--purple:#a855f7;
+--emerald:#10b981;
+--border:rgba(255,255,255,.08);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Exo 2',sans-serif;
+background:var(--bg);
+color:white;
+overflow-x:hidden;
+}
+
+body::before{
+content:'';
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(6,182,212,.04) 1px,transparent 1px),
+linear-gradient(90deg,rgba(6,182,212,.04) 1px,transparent 1px);
+background-size:40px 40px;
+z-index:-3;
+}
+
+.glass{
+background:var(--surface);
+backdrop-filter:blur(18px);
+border:1px solid var(--border);
+}
+
+.hidden{
+display:none;
+}
+
+#particles{
+position:fixed;
+inset:0;
+z-index:-2;
+overflow:hidden;
+}
+
+.particle{
+position:absolute;
+width:4px;
+height:4px;
+border-radius:50%;
+background:rgba(6,182,212,.7);
+box-shadow:0 0 12px rgba(6,182,212,.8);
+animation:floatParticle linear infinite;
+}
+
+@keyframes floatParticle{
+from{
+transform:translateY(100vh) scale(.5);
+opacity:0;
+}
+20%{
+opacity:1;
+}
+to{
+transform:translateY(-120vh) scale(1.2);
+opacity:0;
+}
+}
+
+.ff-input{
+width:100%;
+padding:14px;
+border-radius:14px;
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);
+color:white;
+outline:none;
+}
+
+.ff-input:focus{
+border-color:rgba(6,182,212,.4);
+}
+
+.btn-cyan{
+background:linear-gradient(135deg,#06b6d4,#0891b2);
+color:white;
+padding:14px 18px;
+border:none;
+border-radius:14px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+width:100%;
+}
+
+.btn-cyan:hover{
+transform:translateY(-2px);
+box-shadow:0 0 24px rgba(6,182,212,.4);
+}
+
+.btn-purple{
+background:linear-gradient(135deg,#a855f7,#7c3aed);
+color:white;
+padding:14px 18px;
+border:none;
+border-radius:14px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+width:100%;
+}
+
+.btn-purple:hover{
+transform:translateY(-2px);
+box-shadow:0 0 24px rgba(168,85,247,.4);
+}
+
+.role-btn{
+padding:12px 22px;
+border-radius:999px;
+font-weight:700;
+border:none;
+cursor:pointer;
+transition:.3s;
+}
+
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+z-index:9999;
+padding:14px 20px;
+border-radius:12px;
+transform:translateY(120px);
+opacity:0;
+transition:.4s;
+}
+
+#toast.show{
+transform:translateY(0);
+opacity:1;
+}
+
+#toast.success{
+background:rgba(16,185,129,.15);
+border:1px solid rgba(16,185,129,.4);
+}
+
+#toast.warn{
+background:rgba(239,68,68,.15);
+border:1px solid rgba(239,68,68,.4);
+}
+
+@media(max-width:1024px){
+.main-layout{
+grid-template-columns:1fr !important;
+}
+}
+
+@media(max-width:768px){
+.team-layout{
+grid-template-columns:1fr !important;
+}
+}
+</style>
+
+</head>
+<body>
+
+<div id="particles"></div>
+<div id="toast"></div>
+
+<nav class="glass sticky top-0 z-50 border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+
+<div class="flex items-center gap-3">
+<div class="w-16 h-16 rounded-3xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-2xl">
+⚡
+</div>
+
+<div>
+<h1 class="text-4xl font-black">
+FEST<span class="text-cyan-400">FLOW</span>
+</h1>
+<p class="text-slate-400 text-sm">
+Smart College Fest Management Portal
+</p>
+</div>
+</div>
+
+<div class="flex items-center gap-4 flex-wrap">
+
+<span class="text-emerald-400 font-bold text-sm tracking-widest">
+LIVE
+</span>
+
+<div id="adminBadge" class="hidden px-3 py-1 rounded-full text-xs font-bold tracking-widest"
+style="background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3);">
+ADMIN VERIFIED
+</div>
+
+<div class="glass rounded-full p-1 flex gap-2">
+<button id="btnParticipant" class="role-btn bg-cyan-500 text-black" onclick="switchView('participant')">
+Participant
+</button>
+
+<button id="btnAdmin" class="role-btn text-white" onclick="openAdminModal()">
+Admin
+</button>
+</div>
+
+</div>
+</div>
+</nav>
+
+<div class="glass border-b border-cyan-500/20 px-4 py-3 flex items-center gap-3 overflow-hidden">
+<div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+<marquee id="announcementText">
+Welcome to FestFlow 2026 • Registrations are LIVE • Build • Compete • Win
+</marquee>
+</div>
+
+<section id="participantView" class="max-w-7xl mx-auto px-4 py-8">
+
+<div class="glass rounded-3xl p-5 mb-8">
+<div class="flex items-center justify-between flex-wrap gap-4">
+<div>
+<h2 class="text-xl font-black text-cyan-400">
+Hackathon Finals Countdown
+</h2>
+<p class="text-slate-400 text-sm">
+Main arena session timer
+</p>
+</div>
+
+<div id="countdown" class="text-3xl font-black text-emerald-400 tracking-widest">
+00 : 00 : 00
+</div>
+</div>
+</div>
+
+<div class="main-layout grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8 items-start">
+
+<div class="space-y-8">
+
+<div>
+<h2 class="text-4xl font-black mb-6">
+Event Discovery Grid
+</h2>
+
+<div id="eventsGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+</div>
+
+<div id="ticketSection" class="hidden">
+<h2 class="text-4xl font-black mb-5">
+Active Digital Pass
+</h2>
+<div id="ticketContainer"></div>
+</div>
+
+<div>
+<h2 class="text-4xl font-black mb-5">
+Team Assembly Hub
+</h2>
+
+<div class="team-layout grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+<div class="glass rounded-3xl p-6 w-full max-w-xl mx-auto">
+<h3 class="text-3xl font-black mb-5 text-cyan-400">
+Create Team
+</h3>
+
+<input id="teamName" class="ff-input mb-5" placeholder="Enter Team Name">
+
+<button class="btn-cyan" onclick="createTeam()">
+Generate Team Code
+</button>
+</div>
+
+<div class="glass rounded-3xl p-6 w-full max-w-xl mx-auto">
+<h3 class="text-3xl font-black mb-5 text-purple-400">
+Join Team
+</h3>
+
+<input id="joinCode" class="ff-input mb-5" placeholder="Enter Team Code">
+
+<button class="btn-purple" onclick="joinTeam()">
+Join Team
+</button>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<div>
+<div class="glass rounded-3xl p-5 sticky top-24 w-full">
+
+<div class="flex items-center justify-between mb-5">
+<h2 class="text-4xl font-black">
+Leaderboard
+</h2>
+
+<span class="text-emerald-400 font-bold text-sm">
+LIVE
+</span>
+</div>
+
+<div id="leaderboard"></div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section id="adminView" class="hidden max-w-7xl mx-auto px-4 py-8">
+<div class="grid lg:grid-cols-2 gap-6">
+
+<div class="glass rounded-3xl p-6">
+<h2 class="text-4xl font-black text-purple-400 mb-6">
+Event Maker AI
+</h2>
+
+<div class="space-y-4">
+<input id="eventName" class="ff-input" placeholder="Event Name">
+<input id="eventCap" type="number" class="ff-input" placeholder="Participant Cap">
+<textarea id="eventRules" rows="8" class="ff-input" placeholder="Rules & Logistics"></textarea>
+
+<div class="grid md:grid-cols-2 gap-4">
+<button class="btn-cyan" onclick="generateAIRules()">
+Draft Rules with AI
+</button>
+
+<button class="btn-purple" onclick="publishEvent()">
+Publish Event
+</button>
+</div>
+</div>
+</div>
+
+<div class="space-y-6">
+
+<div class="glass rounded-3xl p-6">
+<h2 class="text-3xl font-black text-cyan-400 mb-5">
+Live Broadcast
+</h2>
+
+<textarea id="broadcastInput" rows="5" class="ff-input mb-4" placeholder="Write announcement..."></textarea>
+
+<button class="btn-cyan" onclick="broadcastMessage()">
+Broadcast Message
+</button>
+</div>
+
+<div class="glass rounded-3xl p-6">
+<h2 class="text-3xl font-black text-emerald-400 mb-5">
+Leaderboard Control
+</h2>
+<div id="leaderboardControls"></div>
+</div>
+
+</div>
+</div>
+</section>
+
+<div id="adminAuthModal" class="hidden fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+<div class="glass w-full max-w-md p-6 rounded-3xl border border-purple-500/30 relative overflow-hidden">
+
+<div class="absolute -top-20 -right-20 w-48 h-48 bg-purple-500/20 blur-3xl rounded-full"></div>
+
+<div class="relative z-10">
+<h2 class="text-3xl font-black mb-3">
+Secure Admin Access
+</h2>
+
+<p class="text-slate-400 mb-5">
+Authentication required to access control panel
+</p>
+
+<input id="adminPassword" type="password" placeholder="Enter secure access key..." class="ff-input mb-4">
+
+<div id="authError" class="hidden text-red-400 text-sm font-bold mb-4">
+Invalid access key
+</div>
+
+<div class="grid grid-cols-2 gap-3">
+<button onclick="closeAdminModal()" class="btn-cyan">
+Cancel
+</button>
+
+<button onclick="verifyAdmin()" class="btn-purple">
+Verify Access
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+
+const state={
+events:[
+{
+id:1,
+name:'AI Prompt Arena',
+registrants:18,
+cap:40,
+rules:'Build AI solutions using prompt engineering principles.'
+},
+{
+id:2,
+name:'Robo Race X',
+registrants:26,
+cap:50,
+rules:'Autonomous and manual robot race challenge.'
+},
+{
+id:3,
+name:'Cyber Hack Fusion',
+registrants:14,
+cap:35,
+rules:'Build scalable full-stack applications in 12 hours.'
+}
+],
+teams:[
+{name:'Quantum Coders',points:980},
+{name:'Cyber Titans',points:870},
+{name:'Neural Ninjas',points:760},
+{name:'Pixel Raiders',points:640}
+]
+};
+
+function createParticles(){
+const container=document.getElementById('particles');
+for(let i=0;i<80;i++){
+const particle=document.createElement('div');
+particle.classList.add('particle');
+particle.style.left=Math.random()*100+'vw';
+particle.style.animationDuration=5+Math.random()*10+'s';
+particle.style.animationDelay=Math.random()*5+'s';
+container.appendChild(particle);
+}
+}
+createParticles();
+
+function showToast(message,type='success'){
+const toast=document.getElementById('toast');
+toast.className=`show ${type}`;
+toast.innerHTML=message;
+clearTimeout(toast.timer);
+toast.timer=setTimeout(()=>{
+toast.className='';
+},3000);
+}
+
+function switchView(view){
+
+const participant=document.getElementById('participantView');
+const admin=document.getElementById('adminView');
+const participantBtn=document.getElementById('btnParticipant');
+const adminBtn=document.getElementById('btnAdmin');
+
+if(view==='participant'){
+
+participant.classList.remove('hidden');
+admin.classList.add('hidden');
+
+participantBtn.classList.add('bg-cyan-500','text-black');
+participantBtn.classList.remove('text-white');
+
+adminBtn.classList.remove('bg-purple-500');
+adminBtn.classList.add('text-white');
+}
+
+else{
+
+admin.classList.remove('hidden');
+participant.classList.add('hidden');
+
+adminBtn.classList.add('bg-purple-500','text-white');
+
+participantBtn.classList.remove('bg-cyan-500','text-black');
+participantBtn.classList.add('text-white');
+}
+}
+
+const ADMIN_PASSWORD='festflow2026';
+let adminVerified=false;
+
+function openAdminModal(){
+if(adminVerified){
+switchView('admin');
+return;
+}
+document.getElementById('adminAuthModal').classList.remove('hidden');
+document.getElementById('adminPassword').focus();
+}
+
+function closeAdminModal(){
+document.getElementById('adminAuthModal').classList.add('hidden');
+document.getElementById('authError').classList.add('hidden');
+document.getElementById('adminPassword').value='';
+}
+
+function verifyAdmin(){
+const password=document.getElementById('adminPassword').value;
+const error=document.getElementById('authError');
+
+if(password===ADMIN_PASSWORD){
+adminVerified=true;
+document.getElementById('adminBadge').classList.remove('hidden');
+closeAdminModal();
+switchView('admin');
+
+confetti({
+particleCount:120,
+spread:70,
+origin:{y:.6}
+});
+
+showToast('Admin authentication successful');
+}
+else{
+error.classList.remove('hidden');
+showToast('Invalid admin access key','warn');
+}
+}
+
+function renderEvents(){
+const grid=document.getElementById('eventsGrid');
+grid.innerHTML='';
+
+state.events.forEach(event=>{
+const percent=(event.registrants/event.cap)*100;
+
+grid.innerHTML+=`
+<div class="glass rounded-3xl p-5 hover:-translate-y-1 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/20">
+
+<div class="flex items-center justify-between mb-4 gap-3">
+<div>
+<h3 class="text-2xl font-black">${event.name}</h3>
+<p class="text-slate-400 text-sm mt-1">High-demand live event</p>
+</div>
+
+<div class="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-2xl">
+⚡
+</div>
+</div>
+
+<div class="mb-4">
+<div class="flex justify-between text-sm mb-2">
+<span>Registrations</span>
+<span class="text-cyan-400 font-bold">${event.registrants}/${event.cap}</span>
+</div>
+
+<div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
+<div class="h-full bg-cyan-400 rounded-full" style="width:${percent}%"></div>
+</div>
+</div>
+
+<p class="text-slate-300 text-sm leading-relaxed mb-5">
+${event.rules}
+</p>
+
+<button onclick="registerEvent(${event.id})" class="btn-cyan">
+Register Secure Slot
+</button>
+</div>`;
+});
+}
+
+function registerEvent(id){
+const event=state.events.find(e=>e.id===id);
+if(event.registrants>=event.cap)return;
+
+event.registrants++;
+renderEvents();
+
+confetti({
+particleCount:180,
+spread:120,
+origin:{y:.6}
+});
+
+const teamCode=`TEAM-${Math.floor(1000+Math.random()*9000)}`;
+
+document.getElementById('ticketSection').classList.remove('hidden');
+
+const ticket=document.getElementById('ticketContainer');
+
+ticket.innerHTML=`
+<div class="glass rounded-3xl p-6 border border-cyan-400/20">
+<div class="flex flex-col md:flex-row gap-6 items-center justify-between">
+
+<div>
+<h2 class="text-4xl font-black mb-3">
+DIGITAL EVENT PASS
+</h2>
+
+<p class="text-slate-400 mb-6">
+Verified FestFlow Access Credential
+</p>
+
+<div class="space-y-4">
+<div class="glass rounded-2xl p-4">
+<p class="text-slate-400 text-sm">Event</p>
+<h3 class="text-2xl font-black">${event.name}</h3>
+</div>
+
+<div class="glass rounded-2xl p-4">
+<p class="text-slate-400 text-sm">Team Code</p>
+<h3 class="text-2xl font-black text-cyan-400">${teamCode}</h3>
+</div>
+</div>
+
+<button onclick="window.print()" class="btn-cyan mt-6">
+Export PDF / Print Pass
+</button>
+</div>
+
+<div id="qrcode" class="bg-white p-4 rounded-2xl"></div>
+
+</div>
+</div>`;
+
+new QRCode(document.getElementById('qrcode'),{
+text:teamCode+' | '+event.name,
+width:180,
+height:180
+});
+
+showToast('Registration Successful');
+}
+
+function renderLeaderboard(){
+const board=document.getElementById('leaderboard');
+board.innerHTML='';
+
+const sorted=[...state.teams].sort((a,b)=>b.points-a.points);
+
+sorted.forEach((team,index)=>{
+board.innerHTML+=`
+<div class="glass rounded-2xl p-4 mb-3 border border-slate-700">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-black text-2xl">${team.name}</h3>
+<p class="text-slate-400 text-lg">Rank #${index+1}</p>
+</div>
+
+<div class="text-right">
+<p class="text-5xl font-black text-emerald-400">${team.points}</p>
+<p class="text-sm text-slate-400">points</p>
+</div>
+</div>
+</div>`;
+});
+}
+
+function renderLeaderboardControls(){
+const controls=document.getElementById('leaderboardControls');
+controls.innerHTML='';
+
+state.teams.forEach((team,index)=>{
+controls.innerHTML+=`
+<div class="glass rounded-2xl p-4 flex items-center justify-between gap-4 mb-3">
+<div>
+<h3 class="font-black text-xl">${team.name}</h3>
+</div>
+
+<input type="number" value="${team.points}" onchange="updatePoints(${index},this.value)" class="ff-input w-28 text-center">
+</div>`;
+});
+}
+
+function updatePoints(index,value){
+state.teams[index].points=Number(value);
+renderLeaderboard();
+}
+
+function createTeam(){
+const input=document.getElementById('teamName');
+if(!input.value.trim())return;
+
+confetti({particleCount:120,spread:80});
+
+state.teams.push({name:input.value,points:0});
+renderLeaderboard();
+renderLeaderboardControls();
+showToast(`Team ${input.value} created`);
+input.value='';
+}
+
+function joinTeam(){
+const input=document.getElementById('joinCode');
+if(!input.value.trim())return;
+showToast(`Joined ${input.value}`);
+input.value='';
+}
+
+function generateAIRules(){
+const name=document.getElementById('eventName').value;
+if(!name)return;
+
+document.getElementById('eventRules').value=`
+1. ${name} participants must complete objectives within allocated time.
+2. Maximum team size is 4 members.
+3. Plagiarism results in disqualification.
+4. Judging includes innovation, scalability, UI/UX and presentation.
+5. Final deployment/demo is mandatory.
+`;
+
+showToast('AI rules generated');
+}
+
+function publishEvent(){
+const name=document.getElementById('eventName').value;
+const cap=document.getElementById('eventCap').value;
+const rules=document.getElementById('eventRules').value;
+
+if(!name||!cap||!rules)return;
+
+state.events.push({
+id:Date.now(),
+name,
+registrants:0,
+cap:Number(cap),
+rules
+});
+
+renderEvents();
+
+confetti({particleCount:180,spread:100});
+
+showToast(`${name} published live`);
+
+document.getElementById('eventName').value='';
+document.getElementById('eventCap').value='';
+document.getElementById('eventRules').value='';
+}
+
+function broadcastMessage(){
+const text=document.getElementById('broadcastInput').value;
+if(!text)return;
+document.getElementById('announcementText').innerText=text;
+showToast('Broadcast sent');
+document.getElementById('broadcastInput').value='';
+}
+
+const targetDate=new Date();
+targetDate.setHours(targetDate.getHours()+5);
+
+function updateCountdown(){
+const now=new Date();
+const difference=targetDate-now;
+
+const hours=Math.floor(difference/(1000*60*60));
+const minutes=Math.floor((difference%(1000*60*60))/(1000*60));
+const seconds=Math.floor((difference%(1000*60))/1000);
+
+document.getElementById('countdown').innerText=
+`${String(hours).padStart(2,'0')} : ${String(minutes).padStart(2,'0')} : ${String(seconds).padStart(2,'0')}`;
+}
+
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+renderEvents();
+renderLeaderboard();
+renderLeaderboardControls();
+lucide.createIcons();
+
+</script>
+
+</body>
+</html>
